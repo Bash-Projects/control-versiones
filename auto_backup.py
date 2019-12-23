@@ -1,58 +1,30 @@
 # Start of Imports
 # Watchdog imports: 
 # pip install watchdog
-from watchdog.observers import Observer
-from watchdog.events import FileSystemEventHandler
+from watchgod import watch
 
 from shutil import copyfile
 
 from datetime import datetime
 
+import ntpath
+
 import os
 import json
 import time
+import sys
 # End of imports
 
-class BackupHandler(FileSystemEventHandler):
-    def on_modified(self, event):
-        i = 1
-        now = datetime.now()
-        
-        print (event.src_path)
-        # For every modified file in the modified directory TODO limit this to ONLY the file in question
-        for filename in os.listdir(event.src_path):
-            print("Backing Up: " + filename)
-            # Check if filename is in blacklist
-            skip = False
-            if not filename in black_list:
-                for f in black_list:
-                    if filename.startswith(f):
-                        skip = True
-            else:
-                skip = True
-
-            # Is it a directory or present in blacklist?
-            if not os.path.isdir(tracked_folder + "/" + filename) and not skip:
-                # We're going to create a new file to store the backup files in (collate them all together)
-                new_destination_folder = destination_folder + "/" + filename.split("1")[0]
-                # Check folder exists, if not create it
-                if not os.path.isdir(new_destination_folder):
-                    os.mkdir(new_destination_folder, access_rights)
-
-                # Now reformat the filename to include datetime
-                new_name = now.strftime(dt_format) + "_" + filename
-                # Now check the filename doesn't already exist - if it does add an integer
-                file_exists = os.path.isfile(destination_folder + "/" + new_name)
-                while file_exists:
-                    self.i += 1
-                    new_name = i + new_name
-                    file_exists = os.path.isfile(destination_folder + "/" + new_name)
-
-
-                # Actually store it now
-                src = event.src_path + "/" + filename
-                destination = new_destination_folder + "/" + new_name
-                copyfile(src, destination)
+# Colours for use in terminal
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
 
 # Clear terminal
 os.system("clear")
@@ -61,27 +33,70 @@ access_rights = 0o755
 # Date time format to append to filename
 dt_format = "%d-%m-%Y %H.%M.%S"
 # Which folder are we watching?
-tracked_folder = "/Users/matthew/Documents"
+tracked_folder = ""
 # Which folder are we backing up the files to?
-destination_folder = "/Users/matthew/Desktop/backups"
+destination_folder = ""
 
-#black listed files 
-black_list = [
-    ".DS_Store", # For Mac's OS specifically
-]
+# Perform setup checks
+# Check a destination folder has been provided
+if destination_folder == "":
+    print(f"{bcolors.FAIL}Please define a destination folder (Where to save backups to)")
+    exit()
+else:
+    print (f"{bcolors.ENDC}Listening for changes in", destination_folder)
 
 
-# Setup the observer and run
-event_handler = BackupHandler()
-observer = Observer()
-observer.schedule(event_handler, tracked_folder, recursive=True)
-observer.start()
+# Check a folder to track has been provided
+if tracked_folder == "":
+    print(f"{bcolors.FAIL}Please define a folder to track")
+    exit()
+else:
+    # Check it exists
+    if not os.path.isdir(tracked_folder):
+        print (f"{bcolors.FAIL}Destination provided is either not a directory or does not exist. Please try again")
+        exit()
 
-# Run indefinitely unless stopped by user
-try:
-    while True:
-        time.sleep(10)
-except KeyboardInterrupt:
-    observer.stop()
+# Check the destination directory actually exists, if not, create it
+if not os.path.isdir(destination_folder):
+    print (f"{bcolors.ENDC}Backup directory not created. Creating directory....")
+    os.mkdir(destination_folder, access_rights)
 
-observer.join()
+# End of setup checks
+
+# Start listening for changes
+# Loop through each individual change
+for changes in watch(tracked_folder):
+    i = 0
+    now = datetime.now()
+    # Each change in the set
+    for change in changes:
+        # Remove filename and path from the array
+        file = change[1]
+
+        # Get filename from path
+        filename = ntpath.basename(file)
+        print (f"{bcolors.ENDC}Backing up file: ", filename)
+
+        new_dir = destination_folder + filename
+
+        if not os.path.isdir(new_dir):
+            print (f"{bcolors.ENDC}New file detected, creating directory....")
+            os.mkdir(new_dir, access_rights)
+
+        # Now reformat the filename to include datetime
+        new_name = now.strftime(dt_format) + "_" + filename
+        # Now check the filename doesn't already exist - if it does add an integer
+        file_exists = os.path.isfile(destination_folder + "/" + new_name)
+        while file_exists:
+            i += 1
+            new_name = i + new_name
+            file_exists = os.path.isfile(destination_folder + new_name)
+
+        # Actually store it now
+        try :
+            destination = new_dir + new_name
+            copyfile(file, destination)
+        except FileNotFoundError as err:
+            print (f"{bcolors.FAIL}File not found exception occurred: {0}".format(err))
+        except : 
+            print (f"{bcolors.FAIL}An unknown exception occurred", sys.exc_info()[0])

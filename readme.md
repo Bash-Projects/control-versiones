@@ -15,7 +15,7 @@ Example:
 
 ## Required Dependencies
 Please install the following via pip before using the App
-* [Watchdog](https://pythonhosted.org/watchdog/index.html)
+* [Watchgod](https://github.com/samuelcolvin/watchgod)
 
 ## Contributing
 If you wish to contribute to this project, then your help is very welcome! 
