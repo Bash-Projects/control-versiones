@@ -31,7 +31,7 @@ os.system("clear")
 # define the access rights to make a folder
 access_rights = 0o755
 # Date time format to append to filename
-dt_format = "%d-%m-%Y %H.%M.%S"
+dt_format = "-%y%m%d-%H:%M:%S"
 # Which folder are we watching?
 tracked_folder = ""
 # Which folder are we backing up the files to?
@@ -43,7 +43,7 @@ if destination_folder == "":
     print(f"{bcolors.FAIL}Please define a destination folder (Where to save backups to)")
     exit()
 else:
-    print (f"{bcolors.ENDC}Listening for changes in", destination_folder)
+    print (f"{bcolors.ENDC}Escuchando los cambios en: ", destination_folder)
 
 
 # Check a folder to track has been provided
