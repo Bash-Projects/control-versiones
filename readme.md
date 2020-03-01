@@ -1,21 +1,15 @@
-# Auto Backup
+# Copia de seguridad automática
+Este script está configurado para escuchar una carpeta y hacer una copia de seguridad automática de cualquier archivo cuando se realiza una modificación en el sistema de archivos. Permitir que el Control de versiones simple se mantenga en archivos en un sistema de archivos local / sistema de archivos de red.
 
-This script is setup to listen to a Folder and automatically backup any file when a modification is made to the filesystem. Allowing for simple Version Control to be kept on files on a local filesystem/network file system. 
-
-Files are successfully renamed with the following format: 
+Los archivos se renombraron correctamente con el siguiente formato:
 ```
-[timestamp]_[original_filename].[extension]
+[timestamp]_[original_filename].[extension] 
 ```
+Ejemplo:
+ 10-12-2019 22.50.00_mattncott.docx 
 
-Example: 
+## Dependencias requeridas
+Instale lo siguiente a través de pip antes de usar la aplicación
 
-```
-10-12-2019 22.50.00_mattncott.docx
-```
-
-## Required Dependencies
-Please install the following via pip before using the App
-* [Watchgod](https://github.com/samuelcolvin/watchgod)
-
-## Contributing
-If you wish to contribute to this project, then your help is very welcome! 
+Watchgod
+ Contribuyendo
