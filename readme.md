@@ -11,5 +11,7 @@ Ejemplo:
 ## Dependencias requeridas
 Instale lo siguiente a través de pip antes de usar la aplicación
 
-Watchgod
- Contribuyendo
+```
+pip3 install Watchgod
+```
+
